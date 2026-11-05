@@ -1,46 +1,46 @@
-# PDF Moodle Restore
+<p align="center"><img src="docs/banner-pdf-moodle-restore.png" alt="PDF Moodle Restore" width="100%"></p>
 
-Extension pour **Helium** (ou tout navigateur Chromium) avec l'extension **PDF Viewer** (pdf.js).
+<p align="center"><img src="https://img.shields.io/badge/browser-Chromium%20%C2%B7%20Helium-000000?style=flat-square" alt="browser"> <img src="https://img.shields.io/badge/manifest-v3-610089?style=flat-square" alt="mv3"> <img src="https://img.shields.io/badge/Moodle-Universit%C3%A9%20de%20Montpellier-f98012?style=flat-square" alt="moodle"> <img src="https://img.shields.io/badge/license-MIT-610089?style=flat-square" alt="license"></p>
 
-## Le problème
+<p align="center"><a href="README.fr.md">🇫🇷 Version française</a></p>
 
-Après un redémarrage, Helium restaure les onglets PDF Moodle… mais la session Moodle est perdue.
-Le lecteur PDF reçoit une page de connexion au lieu du PDF → page vide.
+**Brings your Moodle PDFs back after a browser restart.** For [Helium](https://github.com/imputnet/helium) or any Chromium browser using the *PDF Viewer* (pdf.js) extension, on Université de Montpellier's Moodle.
 
-## Ce que fait l'extension
+## The problem
 
-Au démarrage d'Helium, si des PDF Moodle sont ouverts et que tu n'es plus connecté :
+After a restart, the browser restores your Moodle PDF tabs — but the Moodle session is gone. The PDF viewer gets the login page instead of the file, so every tab is blank.
 
-1. ouvre la connexion CAS de Moodle ;
-2. Bitwarden remplit l'identifiant et le mot de passe, l'extension clique sur « Se connecter » ;
-3. dès que Moodle répond, ferme l'onglet CAS, **revient sur ton onglet** et recharge les PDF sur place.
+## What it does
 
-Aucun mot de passe n'est stocké par l'extension : c'est Bitwarden qui remplit.
+<p align="center"><img src="docs/pdf-moodle-flux.png" width="100%" alt="flow"></p>
 
-## Installation
+When the browser starts, if Moodle PDFs are open and you're logged out:
 
-Dans un terminal :
+1. it opens Moodle's CAS login in a foreground tab;
+2. your password manager (Bitwarden) fills in the credentials and the extension clicks *Se connecter*;
+3. as soon as Moodle serves a PDF again, it closes the CAS tab, **brings you back to your tab** and reloads every PDF in place.
+
+**No password is stored by the extension** — the password manager does the filling. Safety nets: one login attempt per 30 s max (no spamming with a wrong password), gives up after 2 minutes, retries the CAS page if Wi-Fi wasn't ready yet at boot.
+
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/glime32/pdf-moodle-restore/main/install.sh | bash
 ```
 
-Puis, **la première fois seulement** : `chrome://extensions` → Mode développeur →
-Charger l'extension non empaquetée → `~/extensions/pdf-fix`.
+Then, **the first time only**: `chrome://extensions` → Developer mode → *Load unpacked* → `~/extensions/pdf-fix`.
 
-### Réglages Bitwarden
+**Bitwarden settings**: Autofill → *Autofill on page load* on; Security → *Vault timeout*: Never (otherwise the vault is locked at startup).
 
-- Remplissage automatique → **Remplissage automatique au chargement de la page** : activé
-- Sécurité → **Délai d'expiration du coffre** : Jamais (sinon le coffre est verrouillé au démarrage)
+## Updates
 
-## Mises à jour
+`install.sh` sets up a systemd user timer that runs `git pull` at login and every hour. The extension notices the new version on disk and reloads itself.
 
-`install.sh` crée un timer systemd utilisateur qui fait `git pull` au démarrage puis toutes les heures.
-L'extension voit la nouvelle version sur le disque et se recharge toute seule.
+```bash
+systemctl --user status pdf-moodle-restore-maj.timer
+```
 
-Vérifier le timer : `systemctl --user status pdf-moodle-restore-maj.timer`
-
-## Désinstaller
+## Uninstall
 
 ```bash
 systemctl --user disable --now pdf-moodle-restore-maj.timer
@@ -48,4 +48,4 @@ rm ~/.config/systemd/user/pdf-moodle-restore-maj.*
 rm -rf ~/extensions/pdf-fix
 ```
 
-Puis retirer l'extension dans `chrome://extensions`.
+Then remove the extension in `chrome://extensions`. For another university, change the Moodle URL in `background.js`, `manifest.json` and the CAS button text in `login.js`.
