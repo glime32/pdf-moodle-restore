@@ -33,7 +33,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/git -C $DIR pull --ff-only --quiet
+ExecStart=$DIR/update.sh
 EOF
 
 cat > "$UNIT/pdf-moodle-restore-maj.timer" <<EOF
