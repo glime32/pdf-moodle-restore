@@ -98,12 +98,11 @@ chrome.runtime.onStartup.addListener(() => {
   [0, 500, 1500, 4000].forEach(ms => setTimeout(demarrer, ms));
 });
 
-// chaque page Moodle chargee (hors page login) : on reteste tout de suite
-chrome.tabs.onUpdated.addListener((id, info, tab) => {
-  if (info.status !== "complete") return;
-  const u = tab.url || "";
-  if (u.startsWith(MOODLE) && !u.includes("/login/")) verifier();
-});
+// chaque page Moodle chargee (hors page login) : on reteste tout de suite.
+// Le filtre ne reveille l extension que pour Moodle, pas a chaque onglet.
+chrome.webNavigation.onCompleted.addListener(d => {
+  if (d.frameId === 0 && !d.url.includes("/login/")) verifier();
+}, { url: [{ hostEquals: "moodle.umontpellier.fr" }] });
 
 // ---------- Mise a jour auto ----------
 // Le dossier est un clone git mis a jour par un timer systemd (install.sh).
@@ -125,10 +124,10 @@ async function verifierMaj() {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("maj", { periodInMinutes: 15 });
+  chrome.alarms.create("maj", { periodInMinutes: 60 }); // au rythme du git pull horaire
 });
 chrome.runtime.onStartup.addListener(() => {
-  chrome.alarms.create("maj", { periodInMinutes: 15 });
+  chrome.alarms.create("maj", { periodInMinutes: 60 }); // au rythme du git pull horaire
 });
 
 chrome.alarms.onAlarm.addListener(a => {

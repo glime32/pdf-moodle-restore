@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "PDF Moodle Restore",
-  "version": "5.0",
+  "version": "5.1",
   "description": "Rouvre les PDF Moodle UM apres redemarrage d Helium + connexion CAS auto",
-  "permissions": ["tabs", "storage", "alarms"],
+  "permissions": ["tabs", "storage", "alarms", "webNavigation"],
   "host_permissions": ["https://moodle.umontpellier.fr/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [{
