@@ -16,7 +16,7 @@ Après un redémarrage, le navigateur restaure les onglets PDF Moodle… mais la
 
 Au démarrage, si des PDF Moodle sont ouverts et que tu n'es plus connecté :
 
-1. elle ouvre la connexion CAS de Moodle au premier plan ;
+1. elle ouvre directement la page de connexion CAS au premier plan (les onglets que ton lecteur PDF peut afficher depuis une copie locale ne comptent pas) ;
 2. Bitwarden remplit l'identifiant et le mot de passe, l'extension clique sur « Se connecter » ;
 3. dès que Moodle renvoie un PDF, elle ferme l'onglet CAS, **revient sur ton onglet** et recharge les PDF sur place.
 
@@ -48,4 +48,4 @@ rm ~/.config/systemd/user/pdf-moodle-restore-maj.*
 rm -rf ~/extensions/pdf-fix
 ```
 
-Puis retirer l'extension dans `chrome://extensions`. Pour une autre université : changer l'adresse de Moodle dans `background.js` et `manifest.json`, et le texte du bouton CAS dans `login.js`.
+Puis retirer l'extension dans `chrome://extensions`. Pour une autre université : changer les adresses de Moodle et de CAS dans `background.js`, celle de Moodle dans `manifest.json`, et le texte du bouton CAS dans `login.js`.

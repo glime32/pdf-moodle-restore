@@ -5,7 +5,9 @@
 
 const PREFIX = "chrome-extension://oemmndcbldboiebfnladdacbdfmadadm/";
 const MOODLE = "https://moodle.umontpellier.fr/";
-const LOGIN = MOODLE + "login/index.php?authCAS=CAS";
+// tout droit sur la page CAS : 1 redirection au lieu de 4 en passant par Moodle
+const LOGIN = "https://cas.umontpellier.fr/cas/login?service=" + encodeURIComponent(MOODLE + "login/index.php?authCAS=CAS");
+const PDF_VIEWER = PREFIX.slice(19, -1);
 const S = chrome.storage.session;
 const DUREE_MAX = 120000; // abandon apres 2 min
 
@@ -16,6 +18,20 @@ const pause = ms => new Promise(r => setTimeout(r, ms));
 const urlDe = t => t.url || t.pendingUrl || "";
 const estPdfMoodle = t => urlDe(t).startsWith(PREFIX + MOODLE);
 const pdfsMoodle = async () => (await chrome.tabs.query({})).filter(estPdfMoodle);
+
+// Le lecteur PDF garde une copie locale de certains PDF : ceux-là n'ont pas
+// besoin de connexion. Un lecteur qui ne repond pas = tous les onglets comptent.
+async function sansCopie(tabs) {
+  if (!tabs.length) return tabs;
+  try {
+    const locales = await chrome.runtime.sendMessage(PDF_VIEWER, {
+      action: "copiesMoodle",
+      urls: tabs.map(t => urlDe(t).slice(PREFIX.length))
+    });
+    if (Array.isArray(locales)) return tabs.filter((t, i) => !locales[i]);
+  } catch (e) {}
+  return tabs;
+}
 
 // Moodle renvoie le PDF ? => connecte. On coupe des les en-tetes (rapide).
 async function connecte(url, ms) {
@@ -43,7 +59,7 @@ async function finir() {
   chrome.alarms.clear("check");
   if (retour) chrome.tabs.update(retour, { active: true }).catch(() => {});
   if (loginTab) chrome.tabs.remove(loginTab).catch(() => {});
-  for (const t of await pdfsMoodle()) {
+  for (const t of await sansCopie(await pdfsMoodle())) {
     if (!t.discarded && t.status !== "unloaded") chrome.tabs.reload(t.id).catch(() => {});
   }
 }
@@ -77,7 +93,7 @@ async function boucle(test) {
 
 async function demarrer() {
   if (lance) return;
-  const tabs = await pdfsMoodle();
+  const tabs = await sansCopie(await pdfsMoodle());
   if (!tabs.length || lance) return;
   lance = true;
 

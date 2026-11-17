@@ -16,7 +16,7 @@ After a restart, the browser restores your Moodle PDF tabs — but the Moodle se
 
 When the browser starts, if Moodle PDFs are open and you're logged out:
 
-1. it opens Moodle's CAS login in a foreground tab;
+1. it opens the CAS login page directly in a foreground tab (tabs your PDF viewer can show from a local copy are left alone);
 2. your password manager (Bitwarden) fills in the credentials and the extension clicks *Se connecter*;
 3. as soon as Moodle serves a PDF again, it closes the CAS tab, **brings you back to your tab** and reloads every PDF in place.
 
@@ -48,4 +48,4 @@ rm ~/.config/systemd/user/pdf-moodle-restore-maj.*
 rm -rf ~/extensions/pdf-fix
 ```
 
-Then remove the extension in `chrome://extensions`. For another university, change the Moodle URL in `background.js`, `manifest.json` and the CAS button text in `login.js`.
+Then remove the extension in `chrome://extensions`. For another university, change the Moodle and CAS URLs in `background.js`, the Moodle URL in `manifest.json` and the CAS button text in `login.js`.
