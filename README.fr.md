@@ -14,7 +14,7 @@ Après un redémarrage, le navigateur restaure les onglets PDF Moodle… mais la
 
 <p align="center"><img src="docs/pdf-moodle-flux.png" width="100%" alt="fonctionnement"></p>
 
-Au démarrage, si des PDF Moodle sont ouverts et que tu n'es plus connecté :
+Au démarrage, si des PDF Moodle sont ouverts et que tu n'es plus connecté (et que l'extension *Nouvel onglet*, si elle est là, n'a pas pu te connecter sans rien afficher) :
 
 1. elle ouvre directement la page de connexion CAS au premier plan (les onglets que ton lecteur PDF peut afficher depuis une copie locale ne comptent pas) ;
 2. Bitwarden remplit l'identifiant et le mot de passe, l'extension clique sur « Se connecter » ;

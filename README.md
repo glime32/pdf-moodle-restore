@@ -14,7 +14,7 @@ After a restart, the browser restores your Moodle PDF tabs — but the Moodle se
 
 <p align="center"><img src="docs/pdf-moodle-flux.png" width="100%" alt="flow"></p>
 
-When the browser starts, if Moodle PDFs are open and you're logged out:
+When the browser starts, if Moodle PDFs are open and you're logged out (and the companion extension *Nouvel onglet* could not log in silently first):
 
 1. it opens the CAS login page directly in a foreground tab (tabs your PDF viewer can show from a local copy are left alone);
 2. your password manager (Bitwarden) fills in the credentials and the extension clicks *Se connecter*;

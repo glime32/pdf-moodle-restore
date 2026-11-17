@@ -8,6 +8,7 @@ const MOODLE = "https://moodle.umontpellier.fr/";
 // tout droit sur la page CAS : 1 redirection au lieu de 4 en passant par Moodle
 const LOGIN = "https://cas.umontpellier.fr/cas/login?service=" + encodeURIComponent(MOODLE + "login/index.php?authCAS=CAS");
 const PDF_VIEWER = PREFIX.slice(19, -1);
+const NOUVEL_ONGLET = "lhcecfkpdfbpdlocekmammaghmhpedig";
 const S = chrome.storage.session;
 const DUREE_MAX = 120000; // abandon apres 2 min
 
@@ -47,6 +48,26 @@ async function connecte(url, ms) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+// L extension « Nouvel onglet » (si elle est la) sait se connecter sans rien
+// afficher : on essaie d abord, deux fois si le Wi-Fi n est pas encore pret.
+async function sansOnglet(test) {
+  for (let essai = 0; essai < 2; essai++) {
+    let r = null;
+    try {
+      r = await Promise.race([
+        chrome.runtime.sendMessage(NOUVEL_ONGLET, { type: "connecterMoodle" }),
+        pause(30000).then(() => null)
+      ]);
+    } catch (e) {
+      return false;
+    }
+    if (r && r.ok) return connecte(test, 4000);
+    if (!r || r.etat !== "injoignable") return false;
+    await pause(3000);
+  }
+  return false;
 }
 
 // Connecte : ferme l onglet CAS, revient sur ton onglet, recharge les PDF sur place.
@@ -100,6 +121,7 @@ async function demarrer() {
   const test = urlDe(tabs[0]).slice(PREFIX.length);
   await S.set({ test, deja: false });
   if (await connecte(test, 2500)) return finir();
+  if (await sansOnglet(test)) return finir();
 
   // retient ton onglet actuel pour y revenir apres
   const [actif] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
